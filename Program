@@ -1,0 +1,496 @@
+from tkinter import ttk
+from sklearn import tree
+from tkinter import *
+import tkinter as tk
+from tkinter.ttk import Combobox
+import tkinter.messagebox
+import matplotlib.pyplot as plt
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+
+##Detta läser in datan från textfilen
+frukternamn = []##är features
+egenskaper = []##är labels
+lines = sum(1 for line in open("pythonsaker.txt"))
+for i in range (lines):##gör så att programet körs så många rader det finns i textfilen
+    läsafilen = open("pythonsaker.txt", "r")##öppnar textfilen
+    kollafilen = läsafilen.readlines()
+    kollafilen = kollafilen[i].strip()
+    features, labels = kollafilen.split("-")
+
+    a, b, c, d = features.split(" ")##bokstäverna är hur många frågor/inmatnignsdata
+    list = [int(a), int(b), int(c), int(d)]
+    frukternamn.append(list)
+    egenskaper.append(labels)
+
+    läsafilen.close()##Stänger textfilen
+
+clf = tree.DecisionTreeClassifier()##
+clf = clf.fit(frukternamn, egenskaper)
+
+root = Tk()##Jag använder ett boblitek som tillåter dig att skapa en ny ruta sam entryboxes där man kan skriva in inforamtion
+
+root.wm_title("Fruktgissare")##Dett gör så att man kan ändra namn på rutan/windown som öppnas
+
+##Testdata
+print ("Test frukt")
+print(clf.predict([[145, 1, 1, 2]])) ##Det beskrivs som ett äpple då det väger 200 gram och är slät, ett kot och är grön som ett äpple
+
+def gissning(): ##Den funktioen som bestämmer frukten genom att hämta data från entryboxenra och lägger in de i desition trädet
+  vikt12 = int(vikt1.get())
+  yta12 = int(yta1.get())
+  geometri12 = int(geometri1.get())
+  färg12 = int(färg1.get())
+  gissningsfrukt2 = (clf.predict([[vikt12, yta12, geometri12, färg12]]))
+  boxenfrukter.insert(tk.END, gissningsfrukt2[0])
+
+canvas1 = Canvas(width = 450, height = 400)##Detta är hur stor rutan/windown som öppnas där alla widgetar ligger
+canvas1.pack()##denna kod görs så att den körs
+
+##UI här och nedåt
+canvas1.configure(bg='white')##gör så att den ändrar bakgrunden till vit
+
+rubrik = Label(bg="white", text="Fruktgissare", font=("Times", 30))##Rubriken som står i stor text
+canvas1.create_window(140, 40, window=rubrik)
+
+vikttext = Label( bg="white", text="VIKT", font=("Helvetica", 10))##Rubrik VIKT som står längre upp till vänster
+canvas1.create_window(50, 80, window=vikttext)
+
+ytatext = Label( bg="white", text="YTA", font=("Helvetica", 10))##rubrik under vikt
+canvas1.create_window(50, 130, window=ytatext)
+
+geometritext = Label( bg="white", text="GEOMETRI", font=("Helvetica", 10))##rubrik under yta
+canvas1.create_window(70, 180, window=geometritext)
+
+färgtext = Label( bg="white", text="FÄRG", font=("Helvetica", 10))##rubrik under geometri
+canvas1.create_window(55, 230, window=färgtext)
+
+Färg = Label( bg="white", text="Gul = 1, Grön = 2, Röd = 3, Orange = 4, Lila = 5", font=("Helvetica", 8))##Detta är en text/label som skapa texten som beskriver vad man ska skriva in i rutan
+canvas1.create_window(295, 250, window=Färg)
+
+Geometri = Label( bg="white", text="0 = Cylinder, 1 = Klot, 2 = Oval", font=("Helvetica", 8))
+canvas1.create_window(255, 200, window=Geometri)
+
+Yta = Label( bg="white", text="0 = Skrovlig, 1 = Slät", font=("Helvetica", 8))
+canvas1.create_window(230, 150, window=Yta)
+
+Vikt = Label( bg="white", text="Vikt i gram", font=("Helvetica", 8))
+canvas1.create_window(190, 100, window=Vikt)
+
+Sökruta = Label( bg="white", text="Sök ruta", font=("Helvetica", 8))
+canvas1.create_window(380, 220, window=Sökruta)
+
+##slut på UI
+
+vikt1 = Entry(bg="lightgrey") ##Entryboxen där man skriver in vikten för frukten
+canvas1.create_window(100, 100, window=vikt1)##skapa entryboxen
+
+####UI för comboboxarna. Den gör så att man kan konfigurera färg på boxarna där man kan välja 1-5
+combostyle = ttk.Style()
+
+combostyle.theme_create('combostyle', parent='alt',
+                         settings = {'TCombobox':
+                                     {'configure':
+                                      {'selectbackground': 'Black',
+                                       'fieldbackground': 'lightgrey',
+                                       'background': 'lightgrey'
+                                       }}})
+combostyle.theme_use('combostyle') 
+
+##Skapar boxen där man väljer om den är skrovlig eller slät
+yta1 = StringVar()
+data = [0, 1]
+yta1 = Combobox(values=data)
+canvas1.create_window(110, 150, window=yta1)
+
+##Skapar boxen där man väljer om den är Klot eller Cylinderformad
+geometri1 = StringVar()
+data1 = [0, 1, 2]
+geometri1 = Combobox(values=data1)
+canvas1.create_window(110, 200, window=geometri1)
+
+##Skapar boxen där man väljer färg
+färg1 = StringVar()
+data2 = [1, 2, 3, 4, 5]
+färg1 = Combobox(values=data2)
+canvas1.create_window(110, 250, window=färg1)
+
+##Skapar knappen för att köra progrmet
+button = Button(bg="white", text="Kör Program", command=gissning)##command är att det kör funktionen som beskrivs
+canvas1.create_window(390, 270, window=button)
+
+##Lista på frukter i UI
+Egenskaper = Label(bg="white", text="Frukter och Egenskaper", font=("Helvetica", 9))##Texten över listan
+canvas1.create_window(380, 10, window=Egenskaper)
+
+##Boxen där svaret skrivs
+boxenfrukter = tk.Text(bg="lightgrey", height=7, width=35)
+canvas1.create_window(180, 330, window=boxenfrukter)
+
+##lista
+class make_list(tkinter.Listbox):
+    def click_button(self, event):
+        sak = event.widget
+        index = int(sak.curselection()[0])
+        value = sak.get(index)        
+        if value == '1:Äpple':##Alla dessa if value är nya rutor som öppnas när användaren klickar på en frukt i listan
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Äpple:")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 100><170")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Röd eller Grön")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Äpple")
+          W.mainloop()
+        if value == '2:Apelsin':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Apelsin")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 130><250")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Skrovlig")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Orange")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Apelsin")
+          W.mainloop()
+        if value == '3:Banan':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Banan")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 70><200")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Cylinder")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Gul")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Banan")
+          W.mainloop()
+        if value == '4:Vattenmelon':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Vattenmelon")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 1000><3000")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Oval")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Grön")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Vattenmelon")
+          W.mainloop()
+        if value == '5:Aubergine':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Aubergine")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 170><300")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Cylinder")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Lila")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Aubergine")
+          W.mainloop()
+        if value == '6:Vindruva':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Vindruva")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 10><50")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Oval")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Grön eller Röd")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Vindruva")
+          W.mainloop()
+        if value == '7:Ananas':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Ananas")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 300><600")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Skrovlig")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Cylinder")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Gul")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Ananas")
+          W.mainloop()
+        if value == '8:Citron':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Citron")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 150><300")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Skrovlig")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Oval")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Gul")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Citron")
+          W.mainloop()
+        if value == '9:Litchi':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Litchi")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 50><150")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Skrovlig")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Röd")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Litchi")
+        if value == '10:Pumpa':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Pumpa")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 3000><8000")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Orange")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Pumpa")
+        if value == '11:Grapefrukt':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Grapefrukt")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 200><300")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Skrovlig")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Röd")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Grapefrukt")
+          W.mainloop()
+        if value == '12:Honungsmelon':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Honungsmelon")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 500><2000")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Oval")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Gul")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Honungsmelon")
+          W.mainloop()
+        if value == '13:Päron':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Päron")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 200><400")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Oval")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Grön")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Päron")
+          W.mainloop()
+        if value == '14:Mango':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Mango")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 200><350")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Oval")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Gul")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Mango")
+          W.mainloop()
+        if value == '15:Galiamelon':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Galiamelon")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 500><2000")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Skrovlig")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Grön")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Galiamelon")
+          W.mainloop()
+        if value == '16:Granatäpple':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Granatäpple")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 300><600")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Röd")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Granatäpple")
+          W.mainloop()
+        if value == '17:Plommon':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Plommon")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 100><300")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Lila")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Plommon")
+          W.mainloop()
+        if value == '18:Passionsfrukt':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Passionsfrukt")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 50><200")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Skrovlig")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Lila")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Passionsfrukt")
+          W.mainloop()
+        if value == '19:Sharon':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Sharon")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 50><150")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Slät")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Orange")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Sharon")
+          W.mainloop()
+        if value == '20:Kiwi':
+          W=tkinter.Tk()
+          W.geometry("200x100")
+          LABEL=Label(W, text="Kiwi")
+          LABEL.place(x=0,y=0)
+          LABEL=Label(W, text="Vikt: 50><150")
+          LABEL.place(x=0,y=20)
+          LABEL=Label(W, text="Yta: Skrovlig")
+          LABEL.place(x=0,y=40)
+          LABEL=Label(W, text="Geometri: Klot")
+          LABEL.place(x=0,y=60)
+          LABEL=Label(W, text="Färg: Grön")
+          LABEL.place(x=0,y=80)
+          W.wm_title("Kiwi")
+          W.mainloop()
+
+    #skapar rutan och hämtar listan
+    def skapa_frame(self):
+        self.skapa_lista()
+
+    #listan
+    def skapa_lista(self):
+        lista = Listbox(bg="lightgrey")##bakgrunden
+        lista.bind('<<ListboxSelect>>', self.click_button)##kollar vilken som blivit klickad
+        lista123 = ['1:Äpple', "2:Apelsin", "3:Banan", "4:Vattenmelon", "5:Aubergine", "6:Vindruva", "7:Ananas", "8:Citron", "9:Litchi", "10:Pumpa", "11:Grapefrukt", "12:Honungsmelon", "13:Päron", "14:Mango", "15:Galiamelon", "16:Granatäpple", "17:Plommon", "18:Passionsfrukt", "19:Sharon", "20:Kiwi"]
+        for item in lista123:
+          if self.sök.get().lower() in item.lower():
+                lista.insert(END, item)
+        canvas1.create_window(380, 100, window=lista)
+        return
+
+    ##callar på sökrutan samt visar den   
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.pack()
+        self.skapa_widgets()
+
+    ##sökrutan där den kollar om man skriver in något samt bygger rutan men inte visar den
+    def skapa_widgets(self):
+        self.sök = StringVar()
+        self.sök.trace("w", lambda name, index, mode: self.skapa_lista())
+        self.entry = Entry(bg="lightgrey", textvariable=self.sök, width=13)
+        canvas1.create_window(380, 200, window=self.entry)
+        self.skapa_lista()
+
+
+namn123 = Entry(bg="lightgrey") ##Där man skriver in en ny frukt som man vill lägga till
+canvas1.create_window(390, 360, window=namn123)##skapar rutan och vart den är placerad
+
+
+def lägga1():##tar informationen man har skrivit in och lägger in den i samma texdokument som testdatan.
+    minentry = namn123.get()
+    file = open("pythonsaker.txt", "a")
+    print (minentry)
+    file.write("\n")
+    file.write(minentry)
+    file.close()
+
+#Skapar läggatill kanppen och information som beskriver hur man ska skriva när man lägger till en frukt
+läggatill12 = Label( bg="white", text="Här kan du lägga till frukt", font=("Helvetica", 8))
+canvas1.create_window(386, 290, window=läggatill12)
+läggatill123 = Label( bg="white", text="Skriv 'Vikt' 'Yta' 'Geometri'", font=("Helvetica", 8))
+canvas1.create_window(386, 307, window=läggatill123)
+läggatill1234 = Label( bg="white", text="Färg-Namn. Exempel", font=("Helvetica", 8))
+canvas1.create_window(386, 322, window=läggatill1234)
+läggatill12 = Label( bg="white", text="ex:200 1 0 4-Citron", font=("Helvetica", 8))
+canvas1.create_window(386, 340, window=läggatill12)
+
+##Om denna knapp klickas körs lägga1 funktionen
+läggtillknapp = Button( bg="white", text= "Lägg till frukt", command=lägga1)
+canvas1.create_window(390, 390, window=läggtillknapp)
+
+root = make_list(root)
+root.skapa_frame()
+root.mainloop()
+
+plt.figure()##koden för att skapa och visa ett decision tree
+plot_tree(clf, filled=True)
+plt.show()
